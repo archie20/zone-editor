@@ -67,29 +67,7 @@
           </div>
         </div>
 
-        <!-- Email Form (Optional - for future implementation) -->
-        <div class="mt-6">
-          <div class="space-y-4">
-            <div>
-              <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                Email address
-              </label>
-              <input
-                id="email"
-                type="email"
-                disabled
-                placeholder="Coming soon..."
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-gray-50 disabled:cursor-not-allowed"
-              >
-            </div>
-            <button
-              disabled
-              class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gray-400 cursor-not-allowed"
-            >
-              Email sign-in coming soon
-            </button>
-          </div>
-        </div>
+       
 
         <!-- Footer -->
         <div class="mt-8 text-center">

@@ -1,18 +1,49 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 7, 17);
+
+    // --- HELPER FUNCTIONS ---
+
+    /**
+     * Checks if the currently authenticated user belongs to a specific tenant.
+     * This relies on a 'tenantId' custom claim being set on the user's auth token
+     * by a Cloud Function when the user is created.
+     */
+    function isTenantMember(tenantId) {
+      return request.auth != null && request.auth.token.tenantId == tenantId;
+    }
+
+    // --- DATA RULES ---
+
+    // Rules for the top-level 'tenants' collection.
+    match /tenants/{tenantId} {
+
+      // Allow a user to read their own tenant's general information.
+      // Disallow writing to prevent users from changing tenant details like the name.
+      // This could be restricted further to an 'admin' role if needed.
+      allow read: if isTenantMember(tenantId);
+      allow write: if false; // Or: if request.auth.token.role == 'admin';
+
+      // Rules for the 'zones' subcollection within a tenant.
+      // These rules are only evaluated if the user has access to the parent tenant document.
+      match /zones/{zoneId} {
+
+        // Allow members of the tenant to create, read, update, and delete zones.
+        allow read, write, create, delete: if isTenantMember(tenantId);
+
+        // Rules for the 'people' subcollection within a zone.
+        match /people/{personId} {
+          // Allow tenant members to manage people within any zone of their tenant.
+          allow read, write, create, delete: if isTenantMember(tenantId);
+        }
+
+        // Rules for the 'locations' subcollection within a zone.
+        match /locations/{locationId} {
+          // Allow tenant members to manage specific locations within any zone.
+          allow read, write, create, delete: if isTenantMember(tenantId);
+        }
+      }
     }
   }
 }
